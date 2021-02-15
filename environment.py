@@ -31,7 +31,7 @@ class Environment:
         """
         pass
 
-    def doAction(self, action):
+    def doAction(self, newState):
         """
           Performs the given action in the current
           environment state and updates the enviornment.
