@@ -5,11 +5,14 @@ class stateOfGame():
     def __init__(self):
         self.reracks = 0
         self.totalReracks = 3
-        self.cups = np.zeros(28, dtype=np.int8)
-        self.cups[[3, 9, 11, 15, 17, 19, 21, 23, 25, 27]] = 1
+        self.cups = np.zeros((4, 7), dtype=np.int8)
+        self.cups[[0, 1, 1, 2, 2, 2, 3, 3, 3, 3], [3, 2, 4, 1, 3, 5, 0, 2, 4, 6]] = 1
     
     def getCups(self):
         return self.cups
+    
+    def setCups(newCups, self):
+        self.cups = newCups
 
     def getNumCups(self):
         return self.cups.sum()
@@ -21,15 +24,18 @@ class stateOfGame():
         return self.reracks < self.totalReracks
 
 class pongEnviroment(Environment):
-    def __init__(self, radiusOfShooting=1):
+    def __init__(self, radiusOfShooting=0, cupReward=5):
         # Create a local variable of the current cups layout and how many re-racks have been used
         self.currentState = stateOfGame()
         # Incoroporate the radius of shooting to be how accurate someone is, roughly
         self.radiusOfShooting = radiusOfShooting
+        self.cupReward = cupReward
     
     def getCurrentState(self):
-        # TODO: write out a doc explaining this
-        pass
+        output = dict()
+        output["cups"] = self.currentState.getCups()
+        output["reracks"] = self.currentState.reracks
+        return output
 
     def getPossibleActions(self):
         actions = np.zeros(self.currentState.getCups().shape, dtype=self.currentState.getCups().dtype)
@@ -38,33 +44,59 @@ class pongEnviroment(Environment):
         if (self.currentState.canRerack()):
             if (cupsLeft == 3):
                 newState = np.zeros(self.currentState.getCups().shape, dtype=self.currentState.getCups().dtype)
-                newState[[10, 17, 24]] = 1
-                actions = np.vstack((actions, newState))
+                newState[[1, 2, 3], [3, 3, 3]] = 1
+                actions = np.dstack((actions, newState))
             elif (cupsLeft == 4):
                 newState = np.zeros(self.currentState.getCups().shape, dtype=self.currentState.getCups().dtype)
-                newState[[16, 17, 23, 24]] = 1
-                actions = np.vstack((actions, newState))
+                newState[[2, 2, 3, 3], [2, 3, 2, 3]] = 1
+                actions = np.dstack((actions, newState))
             elif (cupsLeft == 6):
                 newState = np.zeros(self.currentState.getCups().shape, dtype=self.currentState.getCups().dtype)
-                newState[[10, 16, 18, 22, 24, 26]] = 1
-                actions = np.vstack((actions, newState))
+                newState[[1, 2, 2, 3, 3, 3], [3, 2, 4, 1, 3, 5]] = 1
+                actions = np.dstack((actions, newState))
+        
         # Add all permuations of currentState
-        cupPositions = self.currentState.getCups().nonzero()[0]
-        for cupPosition in cupPositions:
+        cupPositions = self.currentState.getCups().nonzero()
+        for i in range(len(cupPositions[0])):
             newState = self.currentState.getCups().copy()
-            newState[cupPosition] = 0
-            actions = np.vstack((actions, newState))
+            newState[cupPositions[0][i], cupPositions[1][i]] = 0
+            actions = np.dstack((actions, newState))
 
-        actions = actions[1:, :] #Get rid of first entry which was just all zeros
+        actions = actions[:, :, 1:] #Get rid of first entry which was just all zeros
         return actions
 
     def doAction(self, newState):
-        # TODO: Check if action is a re-rack, and do this with updating the state, and USING A RERACK
-	    
-        # TODO: With some likelyhood hit a cup or surrounding cups, this is dependent on the radiusOfShooting
-        
+        reward = 0
+        if (newState.sum() == self.currentState.getNumCups()):
+            self.currentState = newState
+            self.currentState.useRerack()
+        else:
+            # TODO: With some likelyhood hit a cup or surrounding cups, this is dependent on the radiusOfShooting
+            # Figure out what cup is being aimed for
+            cupAimedFor = self.currentState.getCups() - newState
+            row = cupAimedFor[0][0]
+            column = cupAimedFor[1][0]
+            # Add a normally distributed random variable to each index and round it
+            row = np.round((np.random.normal(loc=row, scale=self.radiusOfShooting)))
+            column = np.round((np.random.normal(loc=column, scale=self.radiusOfShooting)))
+            row = row.astype(np.int8)
+            column = column.astype(np.int8)
+            # Check if we this is a valid index
+            if ((row >= 0 and row < self.currentState.getCups().shape[0]) and (column >= 0 and column < self.currentState.getCups().shape[1])):
+                newState = self.currentState.getCups().copy()
+                newState[row, column] = 0
+                # Check if we hit something (anything!)
+                if ((self.currentState.getCups() - newState).sum() != 0):
+                    reward = self.cupReward
+                    self.currentState.setCups(newState)
+
         # If there are only 2 cups left, then move them to the final configuration
-        pass
+        if (self.currentState.getNumCups() == 2):
+            newState = np.zeros(self.currentState.getCups().shape, dtype=self.currentState.getCups().dtype)
+            newState[[2, 3], [3, 3]] = 1
+            self.currentState = newState 
+
+        return reward
             
 
     def isTerminal(self):
