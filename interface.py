@@ -6,9 +6,11 @@ class Game:
         self.agent = Agent(qTable=qTable)
         self.game = PongEnvironment(radiusOfShooting=radiusOfShooting)
         self.verbose = verbose
+        self.shotsTaken = 0
 
     def playGame(self):
         while (not (self.game.isTerminal())):
+            self.shotsTaken += 1
             currentState = self.game.getCurrentState()
             actions = self.game.getPossibleActions()
             actionPicked = self.agent.pickAction(currentState, actions)
@@ -22,6 +24,8 @@ class Game:
     def getQTable(self):
         return self.agent.qTable
 
+    def getShotsTaken(self):
+        return self.shotsTaken
 
 if __name__ == "__main__":
     game = Game(verbose=True)
