@@ -1,13 +1,16 @@
 from environment import Environment
 import numpy as np
 
-class stateOfGame():
-    def __init__(self):
+class StateOfGame():
+    def __init__(self, cups=None):
         self.reracks = 0
         self.totalReracks = 3
         self.cups = np.zeros((4, 7), dtype=np.int8)
-        self.cups[[0, 1, 1, 2, 2, 2, 3, 3, 3, 3], [3, 2, 4, 1, 3, 5, 0, 2, 4, 6]] = 1
-    
+        if (cups is None):
+            self.cups[[0, 1, 1, 2, 2, 2, 3, 3, 3, 3], [3, 2, 4, 1, 3, 5, 0, 2, 4, 6]] = 1
+        else:
+            self.cups = cups
+
     def getCups(self):
         return self.cups
     
@@ -23,17 +26,17 @@ class stateOfGame():
     def canRerack(self):
         return self.reracks < self.totalReracks
 
-class pongEnviroment(Environment):
-    def __init__(self, radiusOfShooting=0, cupReward=5):
+class PongEnvironment(Environment):
+    def __init__(self, radiusOfShooting=0, cupReward=5, cups=None):
         # Create a local variable of the current cups layout and how many re-racks have been used
-        self.currentState = stateOfGame()
+        self.currentState = StateOfGame(cups=cups)
         # Incoroporate the radius of shooting to be how accurate someone is, roughly
         self.radiusOfShooting = radiusOfShooting
         self.cupReward = cupReward
     
     def getCurrentState(self):
         # Incorporate the rerack information into the numpy array by putting it in the 0th index which is ALWAYS ZERO
-        output = self.currentState.getCups()
+        output = self.currentState.getCups().copy()
         output[0,0] = self.currentState.reracks
         return output
 
@@ -71,7 +74,7 @@ class pongEnviroment(Environment):
             self.currentState.setCups(newState)
             self.currentState.useRerack()
         else:
-            # TODO: With some likelyhood hit a cup or surrounding cups, this is dependent on the radiusOfShooting
+            # With some likelyhood hit a cup or surrounding cups, this is dependent on the radiusOfShooting
             # Figure out what cup is being aimed for
             cupAimedFor = (self.currentState.getCups() - newState).nonzero()
             row = cupAimedFor[0][0]
@@ -100,21 +103,30 @@ class pongEnviroment(Environment):
             
     def isTerminal(self):
         # Check if there is 1 cup left. For our purposes this is our goal.
-        return self.currentState.getNumCups() == 1
+        return self.currentState.getNumCups() <= 1
 
 
 if __name__ == "__main__":
-    game = pongEnviroment()
+    radiusOfShooting = input("Put in your radius of shooting (default 0): ")
+    radiusOfShooting = int(radiusOfShooting)
+    game = pongEnviroment(radiusOfShooting=radiusOfShooting)
     print("Starting game in interactive mode.")
     while (not(game.isTerminal())):
-        print("Current State is\n{}\n".format(game.currentState.getCups()))
+        print("Current State is\n{}".format(game.getCurrentState()))
         actions = game.getPossibleActions()
+        print("All Actions:")
         for i in range(actions.shape[2]):
             action = actions[:, :, i]
-            print("Action {}.\n {}\n".format(i, action))
+            if (action.sum() == game.currentState.getCups().sum()):
+                print("\t{}. Rerack".format(i))
+            else:
+                cupAimedFor = (game.currentState.getCups() - action).nonzero()
+                row = cupAimedFor[0][0]
+                column = cupAimedFor[1][0]
+                print("\t{}. ({}, {})".format(i, row, column))
         actionIndex = input("Which action do you pick? ")
         actionIndex = int(actionIndex)
         newState = actions[:, :, actionIndex]
-        print("newState: \n{}\n".format(newState))
         reward = game.doAction(newState)
-        print("You earned {}".format(reward))
+        if (reward != 0):
+            print("You earned {}".format(reward))

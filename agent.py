@@ -1,6 +1,6 @@
 import numpy as np
 
-class agent:
+class Agent:
     def __init__(self, qTable=dict(), learningRate=0.5, discountFactor=0.5, epsilon=0.25):
         self.qTable = qTable
         self.learningRate = learningRate
@@ -33,11 +33,22 @@ class agent:
         return outputAction
 
     def updateQTable(self, currentState, action, reward, futureState, futureActions):
-        # TODO: Update q table values
+        # Update q table values
         # https://en.wikipedia.org/wiki/Q-learning
+        # Q_new = Q + learningRate * (reward + discountFactor * max(Q(s',a')) - Q)
         key = self.makeKey(currentState, action)
-        currentUtility = self.qTable.get(key, 0)
-        pass
+        q = self.qTable.get(key, 0)
+        estimateOfOptimalFutureValue = -1 #max(Q(s',a')
+        for i in range(futureActions.shape[2]):
+            futureAction = futureActions[:, :, i]
+            futureKey = self.makeKey(futureState, futureAction)
+            futureQ = self.qTable.get(futureKey, 0)
+            if (futureQ > estimateOfOptimalFutureValue):
+                estimateOfOptimalFutureValue = futureQ
+        newValue = reward + self.discountFactor * estimateOfOptimalFutureValue 
+        temporalDifference = newValue - q
+        newQ = q + self.learningRate * temporalDifference
+        self.qTable[key] = newQ
 
     def makeKey(self, state, action):
         key = np.hstack((state, action)).flatten()
