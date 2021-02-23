@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <title>PongAI</title>
+</head>
+
+<body onload="main()">
+    <div>
+        <canvas id="c"></canvas>
+    </div>
+    <div>
+        <div class="dropdown">
+            <button onclick="dropMenu()" class="dropbtn">Cup Layout</button>
+            <div id="myDropdown" class="dropdown-content">
+                <a onclick="dropMenu(); selectCupLayout(10)">Start (10)</a>
+                <a onclick="dropMenu(); selectCupLayout(6)">Pyramid (6)</a>
+                <a onclick="dropMenu(); selectCupLayout(4)">Square (4)</a>
+                <a onclick="dropMenu(); selectCupLayout(3)">Line (3)</a>
+                <a onclick="dropMenu(); selectCupLayout(2)">Automatic (2)</a>
+            </div>
+        </div>
+        <div>
+            <input type="range" min="1" max="100" value="50" id="range" class="slider">
+        </div>
+    </div>
+</body>
+
+</html>
