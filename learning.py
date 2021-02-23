@@ -6,7 +6,7 @@ import pandas as pd
 
 # Create a universal Q-Table
 universalQTable = dict()
-gamesToPlay = 500
+gamesToPlay = 100000
 radiusOfShooting = 1
 allShotsTaken = np.zeros(gamesToPlay)
 

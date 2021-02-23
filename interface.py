@@ -21,8 +21,20 @@ class Game:
             futureActions = self.game.getPossibleActions()
             self.agent.updateQTable(currentState, actionPicked, reward, futureState, futureActions)
     
-    def getQTable(self):
-        return self.agent.qTable
+    def getQTable(self, normalize=True):
+        if (normalize):
+            # Normalize the qTable returned to avoid huge runaways
+            qTableCopy = self.agent.qTable.copy()
+            maxQ = -1
+            for key in qTableCopy.keys():
+                currQ = self.agent.qTable[key]
+                if (currQ > maxQ):
+                    maxQ = currQ
+            for key in qTableCopy.keys():
+                qTableCopy[key] = qTableCopy[key] / maxQ
+            return qTableCopy
+        else:
+            return self.agent.qTable
 
     def getShotsTaken(self):
         return self.shotsTaken
