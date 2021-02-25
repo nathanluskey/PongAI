@@ -113,7 +113,7 @@ class PongEnvironment(Environment):
 if __name__ == "__main__":
     radiusOfShooting = input("Put in your radius of shooting (default 0): ")
     radiusOfShooting = int(radiusOfShooting)
-    game = pongEnviroment(radiusOfShooting=radiusOfShooting)
+    game = PongEnvironment(radiusOfShooting=radiusOfShooting)
     print("Starting game in interactive mode.")
     while (not(game.isTerminal())):
         print("Current State is\n{}".format(game.getCurrentState()))
