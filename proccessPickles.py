@@ -54,7 +54,7 @@ if __name__ == "__main__":
             qTable = pickle.load(filePointer)
         # Log all Q-values in a massive 2D array that will be dumped saved into a dict
         # 65536 = 2^16 to encompass all combinations of 16 cups, 17 is to accomplish a re-rack Q
-        currentProcessedQ = np.zeros((65536, 17), dtype=np.int8)
+        currentProcessedQ = np.zeros((65536, 17), dtype=float)
         OriginalQTableKeys = list(qTable.keys())
         # print(OriginalQTableKeys)
         for OriginalQTableKey in qTable.keys():
@@ -86,15 +86,9 @@ if __name__ == "__main__":
     
     # Output to JSON
     filePath = "./docs/"
-    fileName = "processedQTable.json"
+    fileName = "processedQTable.js"
     fullPath = os.path.join(filePath, fileName)
 
     print("Writing data to javascript")
     with open(fullPath, "w") as json_file:
         json.dump(outputToJSON, json_file)
-
-    
-        
-
-
-
