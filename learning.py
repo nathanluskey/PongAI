@@ -3,29 +3,29 @@ import pickle
 import time
 import numpy as np
 import pandas as pd
+import os
 
 # Create a universal Q-Table
 universalQTable = dict()
-gamesToPlay = 100000
-radiusOfShooting = 1
+gamesToPlay = 10000
+radiiOfShooting = np.arange(0, 2.75, 0.25)
 allShotsTaken = np.zeros(gamesToPlay)
+for radiusOfShooting in radiiOfShooting:
+    tic = time.perf_counter()
+    for i in range(gamesToPlay):
+        print("Playing Game #{}".format(i), end="\r")
+        currentGame = Game(qTable=universalQTable, radiusOfShooting=radiusOfShooting)
+        currentGame.playGame()
+        universalQTable = currentGame.getQTable()
+        # If you want to know how many shots were taken uncomment the following line
+        # allShotsTaken[i] = currentGame.getShotsTaken()
 
-tic = time.perf_counter()
-for i in range(gamesToPlay):
-    print("Playing Game #{}".format(i), end="\r")
-    currentGame = Game(qTable=universalQTable, radiusOfShooting=radiusOfShooting)
-    currentGame.playGame()
-    universalQTable = currentGame.getQTable()
-    allShotsTaken[i] = currentGame.getShotsTaken()
+    toc = time.perf_counter()
+    print("It took {:0.2f}s to run {} simulations with radius {:0.2f}!".format((toc - tic), gamesToPlay, radiusOfShooting))
 
-toc = time.perf_counter()
-print("It took {:0.2f}s to run {} simulations!".format((toc - tic), gamesToPlay))
-
-# Export the Q-Table to a pickle
-with open("sampleTable.p", "wb") as filePointer:
-    pickle.dump(universalQTable, filePointer)
-
-# ExporT the shotsTaken to a csv
-shotsTakenData = pd.DataFrame(data=allShotsTaken)
-shotsTakenData.to_csv("shotsTaken_{}_{}.csv".format(radiusOfShooting, gamesToPlay))
+    # Export the Q-Table to a pickle
+    fileName = "rawTable_{:0.2f}.p".format(radiusOfShooting)
+    fullPath = os.path.join("./rawTables", fileName)
+    with open(fullPath, "wb") as filePointer:
+        pickle.dump(universalQTable, filePointer)
 
