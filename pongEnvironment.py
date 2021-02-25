@@ -90,7 +90,11 @@ class PongEnvironment(Environment):
                 newState[row, column] = 0
                 # Check if we hit something (anything!)
                 if ((self.currentState.getCups() - newState).sum() != 0):
-                    reward = self.cupReward
+                    # Check that we didn't hit the middle cup first
+                    if (self.currentState.getNumCups() == 10 and (row == 2 and column ==3)):
+                        reward = 0.25 * self.cupReward
+                    else:
+                        reward = self.cupReward
                     self.currentState.setCups(newState)
 
         # If there are only 2 cups left, then move them to the final configuration
