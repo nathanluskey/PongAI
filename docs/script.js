@@ -5,13 +5,16 @@ var cupLayout = new Array(16).fill(0);;
 var radiusOfShooting;
 var minDimension;
 
+
 function main() {
     var c = document.getElementById("c");
+    c.width = visualViewport.width;
+    c.height = 0.75 * visualViewport.height;
     ctx = c.getContext("2d");
-    if (c.width < c.height) {
-        minDimension = c.width;
+    if (c.width / 7 < c.height / 4) {
+        minDimension = c.width / 7;
     } else {
-        minDimension = c.height;
+        minDimension = c.height / 4;
     }
     modifyRadius();
     selectCupLayout(10); //Create default cup layout
@@ -44,7 +47,7 @@ function selectCupLayout(newNumCups) {
             break;
         case 3:
             cupLayout = new Array(16).fill(0);
-            [6, 11, 13].forEach(i => cupLayout[i] = 1);
+            [2, 6, 12].forEach(i => cupLayout[i] = 1);
             numCups = newNumCups;
             break;
         case 2:
@@ -58,17 +61,41 @@ function selectCupLayout(newNumCups) {
 }
 
 function renderCups() {
+    ctx.clearRect(0, 0, c.width, c.height);
     // This function is going to do all the canvas stuff for showing cups and calculating values
     var cupValues = getCupValues();
     // cupValues.length
-    for (let i = 0; i < 1; i++) {
-        // TODO: Write the full code for drawing the pyramid
-        ctx.strokeStyle = "red";
-        x = c.width / 2;
-        y = c.height / 2;
-        width = minDimension * 0.3;
-        height = minDimension * 0.3;
-        ctx.strokeRect(x, y, width, height);
+    var cupsSpacesPerRow = [1, 3, 5, 7];
+    var i = 0; //This is going to index the cupValues and cupLayout array
+    for (let rowIndex = 0; rowIndex < cupsSpacesPerRow.length; rowIndex++) {
+        var cupSpacesInThisRow = cupsSpacesPerRow[rowIndex];
+        // Do some math to figure out the starting pixel values for the first cup in each row
+        var cupPositionX = c.width / 2 - ((Math.floor(cupSpacesInThisRow / 2)) * c.width / 7);
+        var cupPositionY = c.height / 4 * (rowIndex + 0.5);
+        for (var cupSpace = 0; cupSpace < cupSpacesInThisRow; cupSpace++) {
+            ctx.strokeStyle = "black";
+            boxX = cupPositionX - (c.width / 14);
+            boxY = cupPositionY - (c.height / 8);
+            boxHeight = c.height / 4;
+            boxWidth = c.width / 7;
+            //Draw box
+            ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+            // console.log("Drew rectangle at: (" + boxX + ", " + boxY + ")")
+            if (cupLayout[i] == 1) {
+                // console.log("Draw cup at " + i);
+                ctx.fillStyle = cupValues[i];
+                ctx.beginPath();
+                radius = 0.5 * minDimension;
+                ctx.arc(cupPositionX, cupPositionY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+            } else {
+                ctx.fillStyle = "black";
+                ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+            }
+            //increment variables
+            cupPositionX += c.width / 7;
+            i++;
+        }
     }
 }
 
@@ -89,22 +116,43 @@ function getCupValues() {
 }
 
 function toggleCup(index) {
-    if (numCups < 10) {
-        if (cupLayout[index] == 1) {
-            cupLayout[index] = 0;
-            numCups -= 1;
-        } else {
-            cupLayout[index] = 1;
-            numCups += 1;
-        }
+    console.log("Toggling index" + index);
+    if (cupLayout[index] == 1) {
+        cupLayout[index] = 0;
+        numCups -= 1;
         return true;
     } else {
+        if (numCups < 10) {
+            cupLayout[index] = 1;
+            numCups += 1;
+            return true;
+        }
         return false;
     }
 }
 
-function manageClick() {
+function manageClick(event) {
+    var xClick = event.offsetX || event.layer;
+    var yClick = event.offsetY || event.layerY;
     // Figure out where the user clicked and toggle that cup
+    var row = Math.floor(yClick / c.height * 4);
+    var column = Math.floor(xClick / c.width * 7);
+    var index = -1;
+    console.log("Clicked at [" + row + ", " + column + "]");
+    if (row == 0 && column == 3) {
+        index = 0;
+    } else if (row == 1 && (column >= 2 && column <= 4)) {
+        index = column - 1;
+    } else if (row == 2 && (column >= 1 && column <= 5)) {
+        index = column + 3;
+    } else if (row == 3) {
+        index = column + 9;
+    }
+    if (index >= 0) {
+        if (toggleCup(index)) {
+            renderCups();
+        }
+    }
 }
 
 

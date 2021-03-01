@@ -2,6 +2,8 @@ import numpy as np
 import pickle
 import os
 import json
+import matplotlib as mpl
+import matplotlib.cm as cm
 
 def getRow(stateMatrix, actionMatrix):
     # Given an the input state and action, output the index to be modified
@@ -80,9 +82,24 @@ if __name__ == "__main__":
         #Parse out the radius of shooting
         radiusOfShooting = fileName.split("_")[1]
         radiusOfShooting = radiusOfShooting[0:-2]
-        # Add a the radiusOfShooting as a key to the dictionary for this table
+        # Turn the currentProcessedQ into a colormap
+        # Normalize it
+        currentProcessedQ = currentProcessedQ / currentProcessedQ.max(axis=0)
+        norm = mpl.colors.Normalize(vmin=0, vmax=1)
+        cmap = cm.RdYlGn
+        m = cm.ScalarMappable(norm=norm, cmap=cmap)
+
+        output = np.empty(currentProcessedQ.shape, dtype=object)
+
+        for i in range(output.shape[0]):
+            for j in range(output.shape[1]):
+                rgba = cmap(currentProcessedQ[i, j])    
+                # rgb2hex accepts rgb or rgba
+                stringHex = mpl.colors.rgb2hex(rgba)
+                output[i, j] = stringHex
+                # print("{} --> {}".format(aNormed[i, j], stringHex))
         # Turn the currentProcessedQ into a list of lists
-        outputToJSON[radiusOfShooting] = currentProcessedQ.tolist()
+        outputToJSON[radiusOfShooting] = output.tolist()
     
     # Output to JSON
     filePath = "./docs/"
