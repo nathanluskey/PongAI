@@ -86,7 +86,7 @@ if __name__ == "__main__":
         # Normalize it
         currentProcessedQ = currentProcessedQ / currentProcessedQ.max(axis=0)
         norm = mpl.colors.Normalize(vmin=0, vmax=1)
-        cmap = cm.RdYlGn
+        cmap = cm.cividis 
         m = cm.ScalarMappable(norm=norm, cmap=cmap)
 
         output = np.empty(currentProcessedQ.shape, dtype=object)

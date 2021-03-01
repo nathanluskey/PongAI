@@ -3,6 +3,7 @@
 body, html {
     height:100%;
     font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
 }
 
 #c {
@@ -58,8 +59,33 @@ body, html {
   /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
   .show {display:block;}
 
-  /* The slider itself */
   .slider {
-    width: 100vw; /* Full-width */
-    height: 10vh; /* Specified height */
+    -webkit-appearance: none;
+    width: 100vw;
+    height: 10vh;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+  
+  .slider:hover {
+    opacity: 1;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10vw;
+    height: 10vh;
+    background: #2980B9;
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 10vw;
+    height: 10vh;
+    background: #2980B9;
+    cursor: pointer;
   }

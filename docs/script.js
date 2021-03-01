@@ -64,7 +64,11 @@ function renderCups() {
     ctx.clearRect(0, 0, c.width, c.height);
     // This function is going to do all the canvas stuff for showing cups and calculating values
     var cupValues = getCupValues();
-    // cupValues.length
+    //Recolor the button
+    console.log("Current color was " + document.getElementById("dropbtn").style.backgroundColor);
+    console.log("Changed button to " + cupValues[cupValues.length - 1]);
+    document.getElementById("dropbtn").style.backgroundColor = cupValues[cupValues.length - 1];
+    // Recolor all the cups
     var cupsSpacesPerRow = [1, 3, 5, 7];
     var i = 0; //This is going to index the cupValues and cupLayout array
     for (let rowIndex = 0; rowIndex < cupsSpacesPerRow.length; rowIndex++) {
@@ -138,7 +142,7 @@ function manageClick(event) {
     var row = Math.floor(yClick / c.height * 4);
     var column = Math.floor(xClick / c.width * 7);
     var index = -1;
-    console.log("Clicked at [" + row + ", " + column + "]");
+    // console.log("Clicked at [" + row + ", " + column + "]");
     if (row == 0 && column == 3) {
         index = 0;
     } else if (row == 1 && (column >= 2 && column <= 4)) {

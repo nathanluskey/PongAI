@@ -12,11 +12,14 @@
 
 <body onload="main()">
     <div>
+        <img src="cividis_labelbar.png" width="100%" height="50vh">
+    </div>
+    <div>
         <canvas id="c" onclick="manageClick(event);"></canvas>
     </div>
     <div>
         <div class="dropdown">
-            <button onclick="dropMenu()" class="dropbtn">Cup Layout</button>
+            <button onclick="dropMenu()" class="dropbtn" id="dropbtn">Cup Layout</button>
             <div id="myDropdown" class="dropdown-content">
                 <a onclick="dropMenu(); selectCupLayout(10)">Start (10)</a>
                 <a onclick="dropMenu(); selectCupLayout(6)">Pyramid (6)</a>
