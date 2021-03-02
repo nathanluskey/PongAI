@@ -61,7 +61,12 @@ function selectCupLayout(newNumCups) {
 }
 
 function renderCups() {
+    //Clear the canvas
     ctx.clearRect(0, 0, c.width, c.height);
+    // Add in shotting radius rendered on top left corner of canvas
+    ctx.fillStyle = "black";
+    ctx.font = "5vmin Arial";
+    ctx.fillText("Radius: " + radiusOfShooting, 0.01 * c.width, 0.05 * c.height);
     // This function is going to do all the canvas stuff for showing cups and calculating values
     var cupValues = getCupValues();
     //Recolor the button
