@@ -2,9 +2,9 @@ from agent import Agent
 from pongEnvironment import PongEnvironment
 
 class Game:
-    def __init__(self, verbose=False, qTable=dict(), radiusOfShooting=0):
-        self.agent = Agent(qTable=qTable)
-        self.game = PongEnvironment(radiusOfShooting=radiusOfShooting)
+    def __init__(self, verbose=False, qTable=dict(), radiusOfShooting=0, epsilon=0.25):
+        self.agent = Agent(qTable=qTable, epsilon=epsilon)
+        self.game = PongEnvironment(radiusOfShooting=radiusOfShooting, cupReward=1)
         self.verbose = verbose
         self.shotsTaken = 0
 
@@ -21,7 +21,7 @@ class Game:
             futureActions = self.game.getPossibleActions()
             self.agent.updateQTable(currentState, actionPicked, reward, futureState, futureActions)
     
-    def getQTable(self, normalize=True):
+    def getQTable(self, normalize=False):
         if (normalize):
             # Normalize the qTable returned to avoid huge runaways
             qTableCopy = self.agent.qTable.copy()
